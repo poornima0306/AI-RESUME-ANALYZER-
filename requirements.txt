@@ -1,1 +1,12 @@
-gunicorn==26.0.0
+Flask
+Flask-Login
+Flask-SQLAlchemy
+gunicorn
+PyPDF2
+pandas
+plotly
+python-docx
+reportlab
+pillow
+lxml
+numpy
