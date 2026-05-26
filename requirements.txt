@@ -1,4 +1,5 @@
 Flask
+gunicorn
 Flask-Login
 Flask-SQLAlchemy
 gunicorn
