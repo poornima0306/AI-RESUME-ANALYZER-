@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from resume_utils import extract_resume_text, job_fit_score, generate_suggestions
+from flask_mail import Mail, Message
 
 import os
 import re
@@ -15,10 +16,22 @@ from reportlab.lib.pagesizes import letter
 from resume_utils import extract_resume_text, job_fit_score, generate_suggestions,generate_ai_tips
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'mysecretkey'
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 
-app.config['SECRET_KEY'] = 'secretkey'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+# ================= DATABASE (FIXED ORDER) =================
+db_url = os.environ.get("DATABASE_URL")
 
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url or 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+mail = Mail(app)
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()
@@ -35,9 +48,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), unique=True)
     username = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(200))
-
+    is_admin = db.Column(db.Boolean, default=False)
 
 # ================= REPORT MODEL =================
 
@@ -91,11 +105,11 @@ def home():
 def register():
 
     if request.method == 'POST':
-
+        email = request.form['email']
         username = request.form['username']
         password = generate_password_hash(request.form['password'])
 
-        user = User(username=username, password=password)
+        user = User(username=username, email=email, password=password)
 
         db.session.add(user)
         db.session.commit()
@@ -126,6 +140,47 @@ def login():
             return redirect(url_for('home'))
 
     return render_template('login.html')
+
+
+@app.route('/admin')
+@login_required
+def admin():
+
+    if not current_user.is_admin:
+        return "Access Denied"
+
+    users = User.query.order_by(User.id.desc()).all()
+    reports = Report.query.all()
+
+    return render_template('admin.html', users=users, reports=reports)
+
+# ================= CHATBOT =================
+
+@app.route('/chatbot_page')
+@login_required
+def chatbot_page():
+    return render_template('chatbot.html')
+
+
+@app.route('/chatbot', methods=['POST'])
+@login_required
+def chatbot():
+
+    user_message = request.form['message']
+
+    if "python" in user_message.lower():
+        reply = "Practice Python basics and Flask projects."
+
+    elif "html" in user_message.lower():
+        reply = "Learn HTML structure and build projects."
+
+    elif "resume" in user_message.lower():
+        reply = "Add skills, projects and achievements in resume."
+
+    else:
+        reply = "Keep improving your resume and skills."
+
+    return {"reply": reply}
 
 
 # ================= LOGOUT =================
@@ -172,6 +227,10 @@ def profile():
         best_score=best_score
     )
 
+@app.route('/templates')
+@login_required
+def templates():
+    return render_template('templates.html')
 
 # ================= DELETE REPORTS =================
 
@@ -268,6 +327,28 @@ def upload():
        missing_skills
     )
 
+    msg = Message(
+
+        "AI Resume Report",
+
+        sender=app.config['MAIL_USERNAME'],
+
+        recipients=[current_user.email]
+
+    )
+
+    msg.body = f"""
+
+    Hello {current_user.username},
+
+    Resume Score: {final_score}%
+
+    ATS Status: {ats_status}
+
+    """
+
+    mail.send(msg)
+
     # ===== GRAPH =====
 
     fig = go.Figure(data=[
@@ -358,7 +439,7 @@ def download(filename):
 
 if __name__ == '__main__':
 
-    with app.app_context():
-        db.create_all()
+    with app.app_context(): 
+        db.create_all() 
 
     app.run(host="0.0.0.0", port=10000)

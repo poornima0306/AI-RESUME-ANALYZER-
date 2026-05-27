@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+
+<h1>Admin Dashboard</h1>
+
+<h2>Registered Users</h2>
+
+<ul>
+{% for user in users %}
+    <li>
+        {{ user.username }} - {{ user.email }}
+    </li>
+{% endfor %}
+</ul>
+
+<h2>Reports</h2>
+
+<ul>
+{% for report in reports %}
+    <li>
+        {{ report.resume_name }} - {{ report.final_score }}%
+    </li>
+{% endfor %}
+</ul>
+
+</body>
+</html>

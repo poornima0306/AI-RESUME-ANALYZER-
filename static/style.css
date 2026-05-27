@@ -520,3 +520,15 @@ a{
 
     transition:width 1s ease;
 }
+@media(max-width:768px){
+
+   .top-icons{
+      flex-wrap:wrap;
+      gap:8px;
+   }
+
+   .container{
+      width:95%;
+   }
+
+}
