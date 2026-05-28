@@ -169,15 +169,17 @@ def chatbot_page():
 @app.route('/chatbot', methods=["GET", "POST"])
 @login_required
 def chatbot():
-     reply = ""
 
-     if request.method == "POST":
+    reply = ""
+
+    if request.method == "POST":
+
         user_message = request.form['message']
 
-        response = model.generation_content(user_message)
-    
-        "reply": reponse.text
-    
+        response = model.generate_content(user_message)
+
+        reply = response.text
+
     return render_template(
         "chatbot.html",
         reply=reply
@@ -410,9 +412,7 @@ def upload():
         pdf_filename=pdf_filename,
         resume_filename=file.filename,
         ats_status=ats_status,
-        skill_scores=skill_scores,
-        interview_questions=interview_questions,
-        resume_improvements=resume_improvements
+        skill_scores=skill_scores
     )
 
 
