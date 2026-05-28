@@ -23,7 +23,7 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
-genai.configure(api_key="AIzaSyBsYoYC0jruJt2wpRMi7gYbWFO8_l74gHM")
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
 model = genai.GenerativeModel("gemini-1.5-flash")
 
@@ -171,7 +171,7 @@ def chatbot_page():
 def chatbot():
      reply = ""
 
-     if request.method == "POST"
+     if request.method == "POST":
         user_message = request.form['message']
 
         response = model.generation_content(user_message)
