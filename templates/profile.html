@@ -1,143 +1,15 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-
-    <title>Profile</title>
-
-    <link rel="stylesheet"
-    href="{{ url_for('static', filename='style.css') }}">
-
-    <style>
-
-        .profile-container{
-
-            width:90%;
-            max-width:900px;
-
-            margin:auto;
-
-            margin-top:50px;
-
-            color:white;
-        }
-
-        .stats{
-
-            display:flex;
-
-            gap:20px;
-
-            flex-wrap:wrap;
-
-            margin-top:30px;
-        }
-
-        .stat-card{
-
-            flex:1;
-
-            min-width:220px;
-
-            background:rgba(255,255,255,0.12);
-
-            backdrop-filter:blur(10px);
-
-            padding:30px;
-
-            border-radius:20px;
-
-            text-align:center;
-
-            box-shadow:0 4px 20px rgba(0,0,0,0.2);
-
-            transition:0.3s;
-        }
-
-        .stat-card:hover{
-
-            transform:translateY(-5px);
-        }
-
-        .stat-card h1{
-
-            font-size:45px;
-
-            margin-bottom:10px;
-        }
-
-        .back-btn{
-
-            display:inline-block;
-
-            margin-top:40px;
-
-            padding:12px 25px;
-
-            background:#0072ff;
-
-            color:white;
-
-            border-radius:10px;
-
-            text-decoration:none;
-
-            font-weight:bold;
-        }
-
-    </style>
-
-</head>
-
-<body>
 {% extends "base.html" %}
 
 {% block content %}
 
-<h1>Welcome {{ username }}</h1>
+<h1>Profile - {{ username }}</h1>
+
+<div>
+    <p>Total Reports: {{ total_reports }}</p>
+    <p>Average Score: {{ avg_score }}%</p>
+    <p>Best Score: {{ best_score }}%</p>
+</div>
+
+<a href="{{ url_for('home') }}">Back Home</a>
 
 {% endblock %}
-
-<div class="profile-container">
-
-    <h1>👤 {{ username }} Profile</h1>
-
-    <div class="stats">
-
-        <div class="stat-card">
-
-            <h1>{{ total_reports }}</h1>
-
-            <h3>Total Reports</h3>
-
-        </div>
-
-        <div class="stat-card">
-
-            <h1>{{ avg_score }}%</h1>
-
-            <h3>Average Score</h3>
-
-        </div>
-
-        <div class="stat-card">
-
-            <h1>{{ best_score }}%</h1>
-
-            <h3>Best Score</h3>
-
-        </div>
-
-    </div>
-
-    <a href="/"
-       class="back-btn">
-
-       ⬅ Back Home
-
-    </a>
-
-</div>
-<script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>

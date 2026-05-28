@@ -1,173 +1,43 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-    <title>AI Resume Analyzer</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
-</head>
-
-<body>
 {% extends "base.html" %}
 
 {% block content %}
 
-<h1>Welcome {{ username }}</h1>
+<div class="dashboard">
 
-{% endblock %}
-<!-- TOP RIGHT ICONS -->
-
-<div class="top-icons">
-
-    <button class="icon-btn"
-            onclick="toggleDarkMode()">
-        ☾
-    </button>
-    <a href="/profile">
-        <button class="icon-btn">
-           👤
-        </button>
-    </a>
-
-    <a href="/templates">
-    <button class="icon-btn">
-        📄
-    </button>
-    </a>
-
-    <a href="/chatbot" class="home-btn">
-       🤖 AI Chatbot
-    </a>
-
-    <a href="/admin">
-       <button class="icon-btn">
-         👑
-        </button>
-    </a>
-
-    <a href="/logout" class="logout-btn">
-        logout
-    </a>
-
-</div>
-
-<!-- MAIN CONTAINER -->
-
-<div class="container">
-
-    <h1>AI Resume Analyzer</h1>
+    <h1>🚀 AI Resume Analyzer Dashboard</h1>
 
     <h3>Welcome {{ username }}</h3>
 
-    <form action="/upload"
-          method="POST"
-          enctype="multipart/form-data">
+    <div class="card">
+        <p>Upload your resume and get AI analysis, skill match, and ATS score.</p>
+    </div>
+
+    <br>
+
+    <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
 
         <label>Job Role</label>
-
         <select name="role">
-
-            <option value="python_developer">
-                Python Developer
-            </option>
-
-            <option value="web_developer">
-                Web Developer
-            </option>
-
-            <option value="data_scientist">
-                Data Scientist
-            </option>
-
+            <option value="python_developer">Python Developer</option>
+            <option value="web_developer">Web Developer</option>
+            <option value="data_scientist">Data Scientist</option>
         </select>
 
-        <textarea
-            name="job_description"
-            placeholder="Paste Job Description"
-            required
-        ></textarea>
+        <textarea name="job_description" placeholder="Paste Job Description" required></textarea>
 
-        <div class="upload-box">
+        <input type="file" name="resume" required>
 
-           <input type="file"
-                  name="resume"
-                  id="resumeInput"
-                  accept=".pdf,.docx,.img,.jpg,.jpeg"
-                  hidden>
-
-            <label for="resumeInput" class="upload-label">
-
-               📂 Drag & Drop Resume Here
-
-               <br><br>
-
-               <span>or Click to Upload</span>
-
-            </label>
-
-        </div>
-
-        <button type="submit" id="analyzeBtn">
-            Analyze Resume
-        </button>
-
-        <div id="loading" style="display:none; margin-top:20px;">
-
-           <div class="loader"></div>
-
-           <p>Analyzing Resume...</p>
-
-        </div>
+        <button type="submit">Analyze Resume</button>
 
     </form>
 
-    <br><br>
-
     {% if chart %}
-
-        <h2>Resume History</h2>
-
-        {{ chart|safe }}
-
+        <h2>📊 History</h2>
+        <div class="card">
+            {{ chart|safe }}
+        </div>
     {% endif %}
-
-    <br><br>
-
-    <a href="/delete_reports">
-        <button class="delete-btn">
-            Delete Reports
-        </button>
-    </a>
 
 </div>
 
-<!-- DARK MODE SCRIPT -->
-
-<script>
-
-function toggleDarkMode(){
-
-    document.body.classList.toggle("dark-mode");
-
-}
-
-</script>
-
-<script>
-
-const form = document.querySelector("form");
-
-form.addEventListener("submit", () => {
-
-    document.getElementById("loading").style.display = "block";
-
-    document.getElementById("analyzeBtn").style.display = "none";
-
-});
-
-</script>
-<script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>
+{% endblock %}

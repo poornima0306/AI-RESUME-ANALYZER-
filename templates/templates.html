@@ -1,23 +1,21 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
 
-<head>
-    <title>Resume Templates</title>
-</head>
+{% block content %}
 
-<body>
+<div class="container">
 
-<h1>Resume Templates</h1>
+    <h1>📄 Resume Templates</h1>
 
-<a href="/static/templates/template1.docx" download>
-   Download Template 1
-</a>
+    <a href="{{ url_for('static', filename='templates/template1.docx') }}" download>
+        📥 Download Template 1
+    </a>
 
-<br><br>
+    <br><br>
 
-<a href="/static/templates/template2.docx" download>
-   Download Template 2
-</a>
-<script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>
+    <a href="{{ url_for('static', filename='templates/template2.docx') }}" download>
+        📥 Download Template 2
+    </a>
+
+</div>
+
+{% endblock %}

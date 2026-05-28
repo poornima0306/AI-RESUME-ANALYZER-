@@ -1,48 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
+{% extends "base.html" %}
 
-    <title>AI Chatbot</title>
+{% block content %}
 
-    <link rel="stylesheet"
-    href="{{ url_for('static', filename='style.css') }}">
+<h1>AI Chatbot 🤖</h1>
 
-</head>
+<form method="POST" action="{{ url_for('chatbot') }}">
 
-<body>
+    <textarea name="message" placeholder="Ask something..." required></textarea>
 
-<div class="container">
+    <button type="submit">Ask AI</button>
 
-    <h1>🤖 AI Resume Assistant</h1>
+</form>
 
-    <form method="POST">
-
-        <textarea
-        name="message"
-        placeholder="Ask anything..."
-        required></textarea>
-
-        <button type="submit">
-            Ask AI
-        </button>
-
-    </form>
-
-    {% if reply %}
-
-        <div class="card suggestion">
-
-            <h3>AI Reply:</h3>
-
-            <p>{{ reply }}</p>
-
-        </div>
-
-    {% endif %}
-
+{% if user_message %}
+<div>
+    <h3>You:</h3>
+    <p>{{ user_message }}</p>
 </div>
+{% endif %}
 
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+{% if reply %}
+<div>
+    <h3>AI:</h3>
+    <p>{{ reply }}</p>
+</div>
+{% endif %}
 
-</body>
-</html>
+{% endblock %}

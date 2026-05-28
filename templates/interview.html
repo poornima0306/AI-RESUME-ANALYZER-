@@ -1,11 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
 <div class="container">
 
     <h1>🎯 Interview Questions</h1>
 
-    <div class="card">
+    <div class="card"
+         style="white-space: pre-wrap; padding: 20px; border-radius: 10px;">
 
-        <pre>{{ questions }}</pre>
+        {{ questions }}
 
     </div>
 
 </div>
+
+{% endblock %}

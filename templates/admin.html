@@ -1,31 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Dashboard</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-<h1>Admin Dashboard</h1>
+{% block content %}
 
-<h2>Registered Users</h2>
+<h1>Admin Dashboard 👑</h1>
 
+<h2>Users</h2>
 <ul>
 {% for user in users %}
-    <li>
-        {{ user.username }} - {{ user.email }}
-    </li>
+    <li>{{ user.username }} - {{ user.email }}</li>
 {% endfor %}
 </ul>
 
 <h2>Reports</h2>
-
 <ul>
-{% for report in reports %}
-    <li>
-        {{ report.resume_name }} - {{ report.final_score }}%
-    </li>
+{% for r in reports %}
+    <li>{{ r.resume_name }} - {{ r.final_score }}%</li>
 {% endfor %}
 </ul>
-<script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>
+
+{% endblock %}
