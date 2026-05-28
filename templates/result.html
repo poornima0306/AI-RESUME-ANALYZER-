@@ -166,7 +166,13 @@
 </head>
 
 <body>
+{% extends "base.html" %}
 
+{% block content %}
+
+<h1>Welcome {{ username }}</h1>
+
+{% endblock %}
 <div class="result-container">
 
     <h1>🚀 Resume Analysis Result</h1>
@@ -341,5 +347,6 @@ document.querySelectorAll(".skill-bar").forEach(bar => {
 
 });
 </script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

@@ -1,38 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
+
     <title>AI Chatbot</title>
+
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}">
+
 </head>
+
 <body>
 
-<h1>AI Chatbot</h1>
+<div class="container">
 
-<input type="text" id="message">
-<button onclick="sendMessage()">Send</button>
+    <h1>🤖 AI Resume Assistant</h1>
 
-<p id="reply"></p>
+    <form method="POST">
 
-<script>
-async function sendMessage() {
+        <textarea
+        name="message"
+        placeholder="Ask anything..."
+        required></textarea>
 
-    let message =
-        document.getElementById("message").value;
+        <button type="submit">
+            Ask AI
+        </button>
 
-    let response = await fetch("/chatbot", {
-        method: "POST",
-        headers: {
-            "Content-Type":
-            "application/x-www-form-urlencoded"
-        },
-        body: "message=" + message
-    });
+    </form>
 
-    let data = await response.json();
+    {% if reply %}
 
-    document.getElementById("reply").innerText =
-        data.reply;
-}
-</script>
+        <div class="card suggestion">
+
+            <h3>AI Reply:</h3>
+
+            <p>{{ reply }}</p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
 </html>

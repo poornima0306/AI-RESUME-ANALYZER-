@@ -9,6 +9,7 @@ import os
 import re
 import plotly.graph_objects as go
 import plotly.express as px
+import google.generativeai as genai
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
@@ -22,6 +23,9 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
+genai.configure(api_key="AIzaSyBsYoYC0jruJt2wpRMi7gYbWFO8_l74gHM")
+
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 # ================= DATABASE (FIXED ORDER) =================
 db_url = os.environ.get("DATABASE_URL")
@@ -52,7 +56,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(200))
     is_admin = db.Column(db.Boolean, default=False)
-
+    profile_pic = db.Column(db.String(200))
 # ================= REPORT MODEL =================
 
 class Report(db.Model):
@@ -162,26 +166,22 @@ def chatbot_page():
     return render_template('chatbot.html')
 
 
-@app.route('/chatbot', methods=['POST'])
+@app.route('/chatbot', methods=["GET", "POST"])
 @login_required
 def chatbot():
+     reply = ""
 
-    user_message = request.form['message']
+     if request.method == "POST"
+        user_message = request.form['message']
 
-    if "python" in user_message.lower():
-        reply = "Practice Python basics and Flask projects."
-
-    elif "html" in user_message.lower():
-        reply = "Learn HTML structure and build projects."
-
-    elif "resume" in user_message.lower():
-        reply = "Add skills, projects and achievements in resume."
-
-    else:
-        reply = "Keep improving your resume and skills."
-
-    return {"reply": reply}
-
+        response = model.generation_content(user_message)
+    
+        "reply": reponse.text
+    
+    return render_template(
+        "chatbot.html",
+        reply=reply
+    )
 
 # ================= LOGOUT =================
 
@@ -410,7 +410,9 @@ def upload():
         pdf_filename=pdf_filename,
         resume_filename=file.filename,
         ats_status=ats_status,
-        skill_scores=skill_scores
+        skill_scores=skill_scores,
+        interview_questions=interview_questions,
+        resume_improvements=resume_improvements
     )
 
 
@@ -423,6 +425,30 @@ def preview(filename):
         filename
     )
 
+@app.route("/interview", methods=["POST"])
+
+def interview():
+
+    role = request.form["role"]
+
+    resume_text = request.form["resume_text"]
+
+    prompt = f"""
+    Generate interview questions for {role}
+
+    based on this resume:
+
+    {resume_text}
+    """
+
+    response = model.generate_content(prompt)
+
+    questions = response.text
+
+    return render_template(
+        "interview.html",
+        questions=questions
+    )
     
 # ================= DOWNLOAD =================
 

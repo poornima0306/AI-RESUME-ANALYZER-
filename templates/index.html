@@ -10,7 +10,13 @@
 </head>
 
 <body>
+{% extends "base.html" %}
 
+{% block content %}
+
+<h1>Welcome {{ username }}</h1>
+
+{% endblock %}
 <!-- TOP RIGHT ICONS -->
 
 <div class="top-icons">
@@ -31,10 +37,8 @@
     </button>
     </a>
 
-    <a href="/chatbot_page">
-      <button class="icon-btn">
-         🤖
-       </button>
+    <a href="/chatbot" class="home-btn">
+       🤖 AI Chatbot
     </a>
 
     <a href="/admin">
@@ -164,6 +168,6 @@ form.addEventListener("submit", () => {
 });
 
 </script>
-
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

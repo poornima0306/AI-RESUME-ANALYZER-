@@ -90,6 +90,13 @@
 </head>
 
 <body>
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Welcome {{ username }}</h1>
+
+{% endblock %}
 
 <div class="profile-container">
 
@@ -131,6 +138,6 @@
     </a>
 
 </div>
-
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
