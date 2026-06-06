@@ -1,0 +1,19 @@
+[33m0778e78[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Removed env file
+[33m63e018d[m Fixed Gemini API
+[33md62c2c5[m[33m ([m[1;31morigin/main[m[33m)[m fix chatbot deploy bug
+[33me0c0dac[m fixed chatbot errors
+[33mfde8227[m Fixed syntax error
+[33me4a22d0[m Added Gemini chatbot
+[33m23cfac4[m added PyPDF2
+[33m5a9d289[m fixed requirements
+[33m49a1dd1[m fixed database error
+[33m0746cde[m fixed psycopg2 error
+[33m74eae0f[m added chatbot admin profile features
+[33m6f8ac41[m added render yaml
+[33m395bbde[m added render yaml
+[33m922a611[m fixed render start
+[33m6556988[m fixed requirements
+[33m84d033f[m fixed render deploy
+[33md7db497[m added gunicorn
+[33mb195c7d[m added gunicorn
+[33m7595e76[m first commit

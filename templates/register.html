@@ -2,23 +2,27 @@
 
 {% block content %}
 
-<h1>Register</h1>
+<div class="container">
 
-<form method="POST">
+    <h1>Register</h1>
 
-    <input type="text" name="username" placeholder="Username" required>
+    <form method="POST">
 
-    <input type="email" name="email" placeholder="Email" required>
+        <input type="text" name="username" placeholder="Username" required>
 
-    <input type="password" name="password" placeholder="Password" required>
+        <input type="email" name="email" placeholder="Email" required>
 
-    <button type="submit">Register</button>
+        <input type="password" name="password" placeholder="Password" required>
 
-</form>
+        <button type="submit">Register</button>
 
-<p>
-    Already have account?
-    <a href="{{ url_for('login') }}">Login</a>
-</p>
+    </form>
+
+    <p>
+        Already have account?
+        <a href="{{ url_for('login') }}">Login</a>
+    </p>
+
+</div>
 
 {% endblock %}

@@ -2,51 +2,117 @@
 
 {% block content %}
 
-<h1>Resume Result</h1>
+<div class="container">
 
-<h2>Score: {{ final_score }}%</h2>
+<div class="result-card">
 
-<h3>{{ ats_status }}</h3>
+    <h1>ATS Score</h1>
 
-<h2>Found Skills</h2>
+    <div class="score-number">
+        {{ final_score }}%
+    </div>
+
+    <h2>{{ ats_status }}</h2>
+
+</div>
+
+<div class="skill-grid">
+
+<div class="section-card" style="flex:1;">
+<h2>✅ Found Skills</h2>
+
 <ul>
 {% for s in found_skills %}
-    <li>{{ s }}</li>
+<li>{{ s }}</li>
 {% endfor %}
 </ul>
 
-<h2>Missing Skills</h2>
+</div>
+
+<div class="section-card" style="flex:1;">
+<h2>❌ Missing Skills</h2>
+
 <ul>
 {% for s in missing_skills %}
-    <li>{{ s }}</li>
+<li>{{ s }}</li>
 {% endfor %}
 </ul>
 
-<h2>Suggestions</h2>
+</div>
+
+</div>
+
+<div class="section-card">
+<h2>💡 Suggestions</h2>
 <ul>
 {% for s in suggestions %}
     <li>{{ s }}</li>
 {% endfor %}
 </ul>
 
-<h2>AI Tips</h2>
-<ul>
-{% for t in ai_tips %}
-    <li>{{ t }}</li>
-{% endfor %}
-</ul>
+<div class="section-card">
+    <h2>AI Tips</h2>
+    <ul>
+        {% for t in ai_tips %}
+            <li>{{ t }}</li>
+        {% endfor %}
+    </ul>
+</div>
 
-<h2>Skill Chart</h2>
-{{ chart_div|safe }}
+<div class="section-card">
+
+    <h3>📊 Skill Match Percentage</h3>
+
+    {% for skill, score in skill_scores.items() %}
+
+        <p>{{ skill }}</p>
+
+        <div style="
+            width:100%;
+            background:#ddd;
+            border-radius:20px;
+            overflow:hidden;
+        ">
+
+            <div class="skill-bar"
+                 data-width="{{ score }}"
+                 style="width:0%;">
+
+                 {{ score }}%
+
+            </div>
+
+        </div>
+
+        <br>
+
+    {% endfor %}
+
+</div>
 
 <br>
 
-<a href="{{ url_for('download', filename=pdf_filename) }}">
-    Download PDF
+{{ chart_div|safe }}
+
+<br><br>
+
+<a class="action-btn"
+href="{{ url_for('download', filename=pdf_filename) }}">
+📥 Download PDF
 </a>
 
-<a href="{{ url_for('preview', filename=resume_filename) }}">
-    Preview Resume
+<a class="action-btn"
+href="{{ url_for('preview', filename=resume_filename) }}">
+👀 Preview Resume
 </a>
+
+</div>
+
+<script>
+document.querySelectorAll(".skill-bar").forEach(bar => {
+    let width = bar.getAttribute("data-width");
+    bar.style.width = width + "%";
+});
+</script>
 
 {% endblock %}

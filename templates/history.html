@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    <h1>📚 Resume History</h1>
+
+    <table class="history-table">
+
+        <tr>
+            <th>Resume</th>
+            <th>Role</th>
+            <th>Score</th>
+        </tr>
+
+        {% for report in reports %}
+
+        <tr>
+            <td>{{ report.resume_name }}</td>
+            <td>{{ report.role }}</td>
+            <td>{{ report.final_score }}%</td>
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+</div>
+
+{% endblock %}

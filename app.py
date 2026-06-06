@@ -29,6 +29,18 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+print("GEMINI KEY FOUND:", bool(GEMINI_API_KEY))
+
+client = None
+try:
+    from google import genai
+    if GEMINI_API_KEY:
+        client = genai.Client(api_key=GEMINI_API_KEY)
+
+    print("CLIENT:", client)
+
+except Exception as e:
+    print("Gemini init failed:", e)
 
 # ================= APP =================
 app = Flask(__name__)
@@ -96,36 +108,40 @@ def load_user(user_id):
 @app.route("/")
 @login_required
 def home():
-    return render_template("index.html", username=current_user.username)
-    reports = Report.query.filter_by(user_id=current_user.id).all()
-
-    chart = None
-    if reports:
-        fig = px.line(
-            x=[r.resume_name for r in reports],
-            y=[r.final_score for r in reports],
-            markers=True,
-            title="Resume Score History"
-        )
-        chart = fig.to_html(full_html=False)
 
     return render_template(
         "index.html",
-        username=current_user.username,
-        chart=chart
+        username=current_user.username
     )
-
 # ================= REGISTER =================
 @app.route("/register", methods=["GET", "POST"])
 def register():
+
     if request.method == "POST":
+
+        existing_user = User.query.filter_by(
+            username=request.form["username"]
+        ).first()
+
+        if existing_user:
+            return "Username already exists ❌"
+
+        existing_email = User.query.filter_by(
+            email=request.form["email"]
+        ).first()
+
+        if existing_email:
+            return "Email already registered ❌"
+
         user = User(
             username=request.form["username"],
             email=request.form["email"],
             password=generate_password_hash(request.form["password"])
         )
+
         db.session.add(user)
         db.session.commit()
+
         return redirect(url_for("login"))
 
     return render_template("register.html")
@@ -169,6 +185,20 @@ def profile():
         best_score=best
     )
 
+# ================= HISTORY =================
+@app.route("/history")
+@login_required
+def history():
+
+    reports = Report.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+    return render_template(
+        "history.html",
+        reports=reports
+    )
+
 # ================= ADMIN =================
 @app.route("/admin")
 @login_required
@@ -194,7 +224,7 @@ def chatbot():
         if client:
             try:
                 response = client.models.generate_content(
-                    model="gemini-1.5-flash",
+                    model="gemini-2.5-flash",
                     contents=user_message
                 )
 
@@ -231,6 +261,8 @@ def delete_reports():
 def upload():
 
     file = request.files["resume"]
+    if not file or file.filename == "":
+        return "Please upload a resume first ❌"
     role = request.form["role"]
     job_desc = request.form["job_description"]
 
@@ -252,7 +284,15 @@ def upload():
 
     found = [s for s in role_skills if s.lower() in resume_text.lower()]
     missing = [s for s in role_skills if s not in found]
+    
+    skill_scores = {}
 
+    for skill in role_skills:
+
+        if skill.lower() in resume_text.lower():
+           skill_scores[skill] = 100
+        else:
+           skill_scores[skill] = 0
     final_score = int(ai_score)
 
     status = (
@@ -264,14 +304,32 @@ def upload():
     suggestions = generate_suggestions(resume_text, job_desc, missing)
     ai_tips = generate_ai_tips(final_score, missing)
 
-    # GRAPH FIXED
+# GRAPH FIXED
     fig = go.Figure(data=[
-        go.Bar(name="Found", x=["Skills"], y=[len(found)]),
-        go.Bar(name="Missing", x=["Skills"], y=[len(missing)])
+        go.Bar(
+            name="Found Skills",
+            x=["Skills"],
+            y=[len(found)]
+        ),
+        go.Bar(
+            name="Missing Skills",
+            x=["Skills"],
+            y=[len(missing)]
+        )
     ])
+
+    fig.update_layout(
+        title="Resume Skills Analysis",
+        barmode="group",
+        height=350,
+        width=700,
+        template="plotly_white",
+        margin=dict(l=20, r=20, t=50, b=20)
+    )
+
     chart_div = fig.to_html(full_html=False)
 
-    # PDF
+    # PDndF
     pdf_name = filename + "_report.pdf"
     pdf_path = os.path.join(app.config["UPLOAD_FOLDER"], pdf_name)
 
@@ -302,7 +360,8 @@ def upload():
         chart_div=chart_div,
         pdf_filename=pdf_name,
         resume_filename=filename,
-        ats_status=status
+        ats_status=status,
+        skill_scores=skill_scores
     )
 
 # ================= PREVIEW =================
@@ -332,8 +391,8 @@ def interview():
 
     if client:
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=prompt
+            model="gemini-2.5-flash",
+            contents=prompt  
         )
         questions = response.text
     else:

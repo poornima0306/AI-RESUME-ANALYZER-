@@ -15,4 +15,5 @@ sentence-transformers
 torch
 transformers
 google-generativeai
+google-genai
 python-dotenv
