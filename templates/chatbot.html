@@ -2,28 +2,41 @@
 
 {% block content %}
 
-<h1>AI Chatbot 🤖</h1>
+<div class="container">
 
-<form method="POST" action="{{ url_for('chatbot') }}">
+    <h1>AI Resume Assistant 🤖</h1>
 
-    <textarea name="message" placeholder="Ask something..." required></textarea>
+    <div class="chat-box">
 
-    <button type="submit">Ask AI</button>
+        {% if user_message %}
+        <div class="user-msg">
+            {{ user_message }}
+        </div>
+        {% endif %}
 
-</form>
+        {% if reply %}
+        <div class="ai-msg">
+            {{ reply }}
+        </div>
+        {% endif %}
 
-{% if user_message %}
-<div>
-    <h3>You:</h3>
-    <p>{{ user_message }}</p>
+    </div>
+
+    <form method="POST">
+
+        <input
+            type="text"
+            name="message"
+            placeholder="Ask AI anything..."
+            required
+        >
+
+        <button type="submit">
+            Send
+        </button>
+
+    </form>
+
 </div>
-{% endif %}
-
-{% if reply %}
-<div>
-    <h3>AI:</h3>
-    <p>{{ reply }}</p>
-</div>
-{% endif %}
 
 {% endblock %}

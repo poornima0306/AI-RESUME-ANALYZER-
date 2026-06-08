@@ -2,36 +2,62 @@
 <html>
 <head>
     <title>AI Resume Analyzer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-<!-- 🔥 ICONS (ONLY TOP RIGHT OVERLAY) -->
 {% if current_user.is_authenticated %}
 <div class="top-icons">
 
-    <a href="{{ url_for('home') }}" class="icon-btn" title="Home">🏠</a>
-    <a href="{{ url_for('profile') }}" class="icon-btn" title="Profile">👤</a>
-    <a href="{{ url_for('templates') }}" class="icon-btn" title="Templates">📄</a>
-    <a href="{{ url_for('chatbot') }}" class="icon-btn" title="Chatbot">🤖</a>
-    <a href="{{ url_for('history') }}" class="icon-btn" title="History">📚</a>
-    <button onclick="toggleDarkMode()" class="icon-btn" title="Dark Mode">🌙</button>
+    <a href="{{ url_for('home') }}"
+       class="icon-btn"
+       title="Home">🏠</a>
 
-    <a href="{{ url_for('logout') }}" class="icon-btn logout" title="Logout">🚪</a>
+    <a href="{{ url_for('profile') }}"
+       class="icon-btn"
+       title="Profile">👤</a>
+
+    <a href="{{ url_for('templates') }}"
+       class="icon-btn"
+       title="Templates">📄</a>
+
+    <a href="{{ url_for('chatbot') }}"
+       class="icon-btn"
+       title="AI Chat">🤖</a>
+
+    <a href="{{ url_for('history') }}"
+       class="icon-btn"
+       title="History">📚</a>
+
+    <button
+        onclick="toggleDarkMode()"
+        class="icon-btn"
+        title="Dark Mode">
+        🌙
+    </button>
+
+    <a href="{{ url_for('logout') }}"
+       class="icon-btn logout"
+       title="Logout">🚪</a>
 
 </div>
 {% endif %}
 
-<!-- 🔥 MAIN CONTENT (YOUR FULL WEBSITE STAYS HERE) -->
 <div class="page-content">
-    {% block content %}{% endblock %}
+    {% block content %}
+    {% endblock %}
 </div>
+
 <script>
 
 document.addEventListener("DOMContentLoaded", function(){
 
-    if(localStorage.getItem("theme") === "dark"){
+    const savedTheme = localStorage.getItem("theme");
+
+    if(savedTheme === "dark"){
         document.body.classList.add("dark-mode");
     }
 
@@ -42,13 +68,15 @@ function toggleDarkMode(){
     document.body.classList.toggle("dark-mode");
 
     if(document.body.classList.contains("dark-mode")){
-        localStorage.setItem("theme","dark");
+        localStorage.setItem("theme", "dark");
     }
     else{
-        localStorage.setItem("theme","light");
+        localStorage.setItem("theme", "light");
     }
+
 }
 
 </script>
+
 </body>
 </html>
