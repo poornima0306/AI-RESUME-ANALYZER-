@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    <h1>AI Resume Analyzer 🚀</h1>
+
+    <p>
+        Upload your resume and get ATS score,
+        AI suggestions, skill analysis and
+        interview preparation tips.
+    </p>
+
+    <br>
+
+    <a class="action-btn"
+       href="{{ url_for('login') }}">
+       Login
+    </a>
+
+    <a class="action-btn"
+       href="{{ url_for('register') }}">
+       Register
+    </a>
+
+</div>
+
+{% endblock %}
