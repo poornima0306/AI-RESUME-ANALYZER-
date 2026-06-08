@@ -17,10 +17,11 @@
     <a href="{{ url_for('chatbot') }}" class="icon-btn" title="Chatbot">🤖</a>
     <a href="{{ url_for('history') }}" class="icon-btn" title="History">📚</a>
     <button onclick="toggleDarkMode()" class="icon-btn" title="Dark Mode">🌙</button>
-    
+
     <a href="{{ url_for('logout') }}" class="icon-btn logout" title="Logout">🚪</a>
 
 </div>
+{% endif %}
 
 <!-- 🔥 MAIN CONTENT (YOUR FULL WEBSITE STAYS HERE) -->
 <div class="page-content">
