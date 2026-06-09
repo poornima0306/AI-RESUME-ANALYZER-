@@ -6,7 +6,7 @@ from flask_login import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mail import Mail, Message
-
+from flask import session
 import os
 import uuid
 from dotenv import load_dotenv
@@ -216,6 +216,7 @@ def admin():
     return render_template("admin.html", users=users, reports=reports)
 
 # ================= CHATBOT =================
+
 @app.route("/chatbot", methods=["GET", "POST"])
 @login_required
 def chatbot():
@@ -227,24 +228,41 @@ def chatbot():
 
         user_message = request.form.get("message", "").strip()
 
+        if "chat_history" not in session:
+            session["chat_history"] = []
+
+        history = session["chat_history"]
+
+        history.append({
+            "role": "user",
+            "message": user_message
+        })
+
+        conversation = ""
+
+        for msg in history:
+            conversation += f"{msg['role']}: {msg['message']}\n"
+
         prompt = f"""
 You are a friendly AI assistant similar to ChatGPT.
 
-Rules:
-- Be conversational.
-- Reply naturally.
-- Avoid long essays unless requested.
-- Keep answers concise.
-- Speak like a real person.
+Guidelines:
+- Talk naturally and conversationally.
+- Give direct answers first.
+- Keep responses concise unless asked for details.
+- Remember previous messages in the conversation.
+- Sound helpful and human-like.
+- Ask follow-up questions when appropriate.
 - Use simple language.
-- Do not use headings unless needed.
-- Do not write blog-style articles.
 
-User:
-{user_message}
+Conversation History:
+{conversation}
+
+Assistant:
 """
 
         if client:
+
             try:
 
                 response = client.models.generate_content(
@@ -254,15 +272,39 @@ User:
 
                 reply = response.text.strip()
 
-                # Prevent extremely long replies
                 if len(reply) > 1000:
                     reply = reply[:1000] + "..."
 
+                history.append({
+                    "role": "assistant",
+                    "message": reply
+                })
+
+                if len(history) > 20:
+                    history = history[-20:]
+
+                session["chat_history"] = history
+                session.modified = True
+
             except Exception as e:
-                reply = f"Error: {str(e)}"
+
+                error_text = str(e)
+
+                if "503" in error_text:
+                    reply = "⚠️ AI is busy right now. Please try again in a few moments."
+                else:
+                    reply = "⚠️ Something went wrong. Please try again."
+
+                history.append({
+                    "role": "assistant",
+                    "message": reply
+                })
+
+                session["chat_history"] = history
+                session.modified = True
 
         else:
-            reply = "AI service not available. Please check Gemini API configuration."
+            reply = "⚠️ AI service not available. Please check Gemini API configuration."
 
     return render_template(
         "chatbot.html",
