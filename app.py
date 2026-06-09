@@ -223,30 +223,31 @@ def chatbot():
     user_message = ""
 
     if request.method == "POST":
-       user_message = request.form["message"]
+        user_message = request.form["message"]
 
-       prompt = f"""
-    You are a helpful AI assistant.
+        prompt = f"""
+You are a helpful AI assistant.
 
-    Reply naturally like ChatGPT.
+Reply naturally like ChatGPT.
 
-    Keep responses clear, professional and easy to understand.
+Keep responses clear, professional and easy to understand.
 
-    User:
-    {user_message}
-    """
+User:
+{user_message}
+"""
 
         if client:
-           try:
-               response = client.models.generate_content(
-                  model="gemini-2.5-flash",
-                  contents=prompt
+            try:
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=prompt
                 )
 
                 reply = response.text
 
             except Exception as e:
                 reply = str(e)
+
         else:
             reply = "AI service not available"
 
