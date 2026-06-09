@@ -219,37 +219,50 @@ def admin():
 @app.route("/chatbot", methods=["GET", "POST"])
 @login_required
 def chatbot():
+
     reply = ""
     user_message = ""
 
     if request.method == "POST":
-        user_message = request.form["message"]
+
+        user_message = request.form.get("message", "").strip()
 
         prompt = f"""
-You are a helpful AI assistant.
+You are a friendly AI assistant similar to ChatGPT.
 
-Reply naturally like ChatGPT.
+Guidelines:
+- Talk naturally and conversationally.
+- Give direct answers first.
+- Keep responses concise unless the user asks for details.
+- Avoid long essays, reports, or excessive bullet points.
+- Sound helpful and human-like.
+- Ask a follow-up question when appropriate.
+- Use simple language.
+- Be friendly and engaging.
 
-Keep responses clear, professional and easy to understand.
-
-User:
+User message:
 {user_message}
 """
 
         if client:
             try:
+
                 response = client.models.generate_content(
                     model="gemini-2.5-flash",
                     contents=prompt
                 )
 
-                reply = response.text
+                reply = response.text.strip()
+
+                # Prevent extremely long replies
+                if len(reply) > 1000:
+                    reply = reply[:1000] + "..."
 
             except Exception as e:
-                reply = str(e)
+                reply = f"Error: {str(e)}"
 
         else:
-            reply = "AI service not available"
+            reply = "AI service not available. Please check Gemini API configuration."
 
     return render_template(
         "chatbot.html",
