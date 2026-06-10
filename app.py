@@ -287,6 +287,8 @@ Assistant:
                 print(response)
 
                 reply = response.text.strip()
+                print("USER:", user_message)
+                print("REPLY:", reply)
 
                 history.append({
                     "role": "assistant",
@@ -297,11 +299,18 @@ Assistant:
                 session.modified = True
 
             except Exception as e:
+                error_text = str(e)
+
+                if "429" in error_text:
+                   reply = "⚠️ AI quota exceeded. Please try again later."
+
+                elif "503" in error_text:
+                   reply = "⚠️ AI server busy. Please try again in a minute."
+
+                else:
+                    reply = "⚠️ Something went wrong."
 
                 print("CHATBOT ERROR:", e)
-
-                reply = f"ERROR: {str(e)}"
-
         else:
             reply = "⚠️ AI service not available. Please check Gemini API configuration."
 
