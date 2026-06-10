@@ -8,17 +8,21 @@
 
     <div class="chat-box">
 
-        {% if user_message %}
-        <div class="user-msg">
-            {{ user_message }}
-        </div>
-        {% endif %}
+        {% for msg in history %}
 
-        {% if reply %}
-        <div class="ai-msg">
-            {{ reply }}
-        </div>
-        {% endif %}
+            {% if msg.role == "user" %}
+                <div class="user-msg">
+                    {{ msg.message }}
+                </div>
+
+            {% else %}
+                <div class="ai-msg">
+                    {{ msg.message }}
+                </div>
+
+            {% endif %}
+
+        {% endfor %}
 
     </div>
 
@@ -38,5 +42,12 @@
     </form>
 
 </div>
+
+<script>
+window.onload = function() {
+    var chatBox = document.querySelector(".chat-box");
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+</script>
 
 {% endblock %}

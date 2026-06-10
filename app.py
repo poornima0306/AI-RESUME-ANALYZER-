@@ -10,7 +10,7 @@ from flask import session
 import os
 import uuid
 from dotenv import load_dotenv
-
+from datetime import datetime
 import plotly.graph_objects as go
 import plotly.express as px
 
@@ -29,6 +29,7 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+print("KEY =", GEMINI_API_KEY)
 print("GEMINI KEY FOUND:", bool(GEMINI_API_KEY))
 
 client = None
@@ -63,6 +64,8 @@ app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///users.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+
+
 
 # ================= LOGIN =================
 login_manager = LoginManager()
@@ -158,6 +161,8 @@ def login():
 
         if user and check_password_hash(user.password, request.form["password"]):
             login_user(user)
+            
+            session["chat_history"] = []
             return redirect(url_for("home"))
 
         return "Invalid login ❌"
@@ -168,7 +173,11 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
+
+    session.pop("chat_history", None)
+
     logout_user()
+
     return redirect(url_for("login"))
 
 # ================= PROFILE =================
@@ -244,18 +253,20 @@ def chatbot():
             conversation += f"{msg['role']}: {msg['message']}\n"
 
         prompt = f"""
-You are a friendly AI assistant similar to ChatGPT.
+You are a friendly AI assistant.
 
-Guidelines:
-- Talk naturally and conversationally.
-- Give direct answers first.
-- Keep responses concise unless asked for details.
-- Remember previous messages in the conversation.
-- Sound helpful and human-like.
-- Ask follow-up questions when appropriate.
-- Use simple language.
+Rules:
+- Talk like a real friend.
+- Keep replies short and natural.
+- Avoid formal language.
+- Avoid saying things like "my purpose is..."
+- Sound casual and engaging.
+- Use simple English.
+- Reply like ChatGPT.
+- Be fun when the user is casual.
+- Remember previous conversation.
 
-Conversation History:
+Conversation:
 {conversation}
 
 Assistant:
@@ -265,53 +276,41 @@ Assistant:
 
             try:
 
+                print("Sending to Gemini...")
+
                 response = client.models.generate_content(
                     model="gemini-2.5-flash",
                     contents=prompt
                 )
 
-                reply = response.text.strip()
+                print("Gemini Response Received")
+                print(response)
 
-                if len(reply) > 1000:
-                    reply = reply[:1000] + "..."
+                reply = response.text.strip()
 
                 history.append({
                     "role": "assistant",
                     "message": reply
                 })
-
-                if len(history) > 20:
-                    history = history[-20:]
 
                 session["chat_history"] = history
                 session.modified = True
 
             except Exception as e:
 
-                error_text = str(e)
+                print("CHATBOT ERROR:", e)
 
-                if "503" in error_text:
-                    reply = "⚠️ AI is busy right now. Please try again in a few moments."
-                else:
-                    reply = "⚠️ Something went wrong. Please try again."
-
-                history.append({
-                    "role": "assistant",
-                    "message": reply
-                })
-
-                session["chat_history"] = history
-                session.modified = True
+                reply = f"ERROR: {str(e)}"
 
         else:
             reply = "⚠️ AI service not available. Please check Gemini API configuration."
 
     return render_template(
-        "chatbot.html",
-        reply=reply,
-        user_message=user_message
-    )
-
+    "chatbot.html",
+    reply=reply,
+    user_message=user_message,
+    history=session.get("chat_history", [])
+)
 # ================= TEMPLATES PAGE =================
 @app.route("/templates")
 @login_required
