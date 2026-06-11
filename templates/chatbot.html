@@ -16,10 +16,9 @@
                 </div>
 
             {% else %}
-                <div class="ai-msg">
-                    {{ msg.message }}
+                <div class="message-text">
+                    {{ msg.message|safe }}
                 </div>
-
             {% endif %}
 
         {% endfor %}

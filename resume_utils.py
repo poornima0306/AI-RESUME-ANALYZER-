@@ -11,24 +11,20 @@ def extract_resume_text(filepath):
 
     text = ""
 
-    # PDF
     if filepath.endswith(".pdf"):
 
         reader = PdfReader(filepath)
 
-        for page in reader.pages:
+        print("TOTAL PAGES =", len(reader.pages))
+
+        for i, page in enumerate(reader.pages):
+
             extracted = page.extract_text()
+
+            print("PAGE", i+1, "TEXT =", extracted)
 
             if extracted:
                 text += extracted
-
-    # DOCX
-    elif filepath.endswith(".docx"):
-
-        doc = Document(filepath)
-
-        for para in doc.paragraphs:
-            text += para.text
 
     return text.lower()
 
@@ -139,3 +135,28 @@ def generate_ai_tips(score, missing_skills):
     )
 
     return tips
+
+def generate_interview_questions(resume_text):
+
+    questions = []
+
+    if "python" in resume_text:
+        questions.append("Explain a Python project you have worked on.")
+
+    if "machine learning" in resume_text or "ml" in resume_text:
+        questions.append("What Machine Learning models have you used?")
+
+    if "computer vision" in resume_text:
+        questions.append("Explain a Computer Vision project.")
+
+    if "wordpress" in resume_text:
+        questions.append("What are the advantages of WordPress?")
+
+    if "intern" in resume_text:
+        questions.append("What did you learn during your internship?")
+
+    questions.append("Tell me about yourself.")
+    questions.append("Why should we hire you?")
+    questions.append("What are your strengths?")
+
+    return questions

@@ -14,6 +14,7 @@ from datetime import datetime
 import plotly.graph_objects as go
 import plotly.express as px
 
+
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 
@@ -21,8 +22,10 @@ from resume_utils import (
     extract_resume_text,
     job_fit_score,
     generate_suggestions,
-    generate_ai_tips
+    generate_ai_tips,
+    generate_interview_questions
 )
+from datetime import datetime
 
 # ================= ENV =================
 load_dotenv()
@@ -230,6 +233,9 @@ def admin():
 @login_required
 def chatbot():
 
+    current_date = datetime.now().strftime("%d %B %Y")
+    current_time = datetime.now().strftime("%I:%M %p")
+
     reply = ""
     user_message = ""
 
@@ -247,24 +253,45 @@ def chatbot():
             "message": user_message
         })
 
+        print("SESSION KEYS =", session.keys())
+
+        resume_text = session.get("resume_text", "")
+        print("RESUME TEXT =", resume_text)
+
         conversation = ""
 
         for msg in history:
             conversation += f"{msg['role']}: {msg['message']}\n"
 
         prompt = f"""
-You are a friendly AI assistant.
+You are a friendly AI assistant similar to ChatGPT.
+
+User Resume:
+{resume_text}
+
+Current Date: {current_date}
+Current Time: {current_time}
 
 Rules:
-- Talk like a real friend.
-- Keep replies short and natural.
-- Avoid formal language.
-- Avoid saying things like "my purpose is..."
-- Sound casual and engaging.
-- Use simple English.
-- Reply like ChatGPT.
-- Be fun when the user is casual.
+- Answer any topic the user asks.
+- Have natural conversations.
+- Be friendly and helpful.
+- Talk like a real human friend.
 - Remember previous conversation.
+- Use resume information when asked.
+- If user asks about skills, projects, education, experience, certifications or resume details, answer from the resume above.
+- If user asks normal questions, answer normally.
+- Do not say you cannot see the resume when resume information is available.
+- Keep answers clear and concise.
+- If user asks about resume, use User Resume information.
+- If resume does not contain the answer, say it is not available in the resume.
+- Never ignore resume information when asked about skills, education, projects or experience.
+- Use plain text.
+- Avoid markdown symbols like **, ##, *, ``` .
+- Use short paragraphs.
+- Format replies cleanly.
+- Do not use bullet points unless necessary.
+- Keep replies clean and readable.
 
 Conversation:
 {conversation}
@@ -276,19 +303,12 @@ Assistant:
 
             try:
 
-                print("Sending to Gemini...")
-
                 response = client.models.generate_content(
                     model="gemini-2.5-flash",
                     contents=prompt
                 )
 
-                print("Gemini Response Received")
-                print(response)
-
                 reply = response.text.strip()
-                print("USER:", user_message)
-                print("REPLY:", reply)
 
                 history.append({
                     "role": "assistant",
@@ -299,27 +319,42 @@ Assistant:
                 session.modified = True
 
             except Exception as e:
+
                 error_text = str(e)
 
                 if "429" in error_text:
-                   reply = "⚠️ AI quota exceeded. Please try again later."
+
+                    if resume_text:
+
+                        reply = f"""
+Gemini quota reached.
+
+I can still access the uploaded resume.
+
+Resume contains:
+{resume_text[:500]}
+"""
+
+                    else:
+                        reply = "⚠️ Daily AI limit reached. Please try again later."
 
                 elif "503" in error_text:
-                   reply = "⚠️ AI server busy. Please try again in a minute."
+                    reply = "⚠️ AI service is currently unavailable. Please try again later."
 
                 else:
-                    reply = "⚠️ Something went wrong."
+                    reply = "⚠️ Something went wrong. Please try again later."
 
                 print("CHATBOT ERROR:", e)
+
         else:
-            reply = "⚠️ AI service not available. Please check Gemini API configuration."
+            reply = "⚠️ AI service not available."
 
     return render_template(
-    "chatbot.html",
-    reply=reply,
-    user_message=user_message,
-    history=session.get("chat_history", [])
-)
+        "chatbot.html",
+        reply=reply,
+        user_message=user_message,
+        history=session.get("chat_history", [])
+    )
 # ================= TEMPLATES PAGE =================
 @app.route("/templates")
 @login_required
@@ -351,6 +386,18 @@ def upload():
     file.save(path)
 
     resume_text = extract_resume_text(path)
+    print("FILE PATH =", path)
+    print("RESUME LENGTH =", len(resume_text))
+    print("UPLOAD RESUME =", resume_text[:300])
+
+    session["resume_text"] = resume_text
+
+    print("SESSION SAVED =", session.get("resume_text", "")[:300])
+
+    print(session.keys())
+
+    session.modified = True
+    print("AFTER SAVE SESSION =", session.keys())
     ai_score = job_fit_score(resume_text, job_desc)
 
     skills_map = {
@@ -382,7 +429,7 @@ def upload():
 
     suggestions = generate_suggestions(resume_text, job_desc, missing)
     ai_tips = generate_ai_tips(final_score, missing)
-
+    interview_questions = generate_interview_questions(resume_text)
 # GRAPH FIXED
     fig = go.Figure(data=[
         go.Bar(
@@ -440,7 +487,8 @@ def upload():
         pdf_filename=pdf_name,
         resume_filename=filename,
         ats_status=status,
-        skill_scores=skill_scores
+        skill_scores=skill_scores,
+        interview_questions=interview_questions
     )
 
 # ================= PREVIEW =================

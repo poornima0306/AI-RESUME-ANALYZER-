@@ -2,14 +2,20 @@
 
 {% block content %}
 
-<h1>Profile - {{ username }}</h1>
+<div class="profile-card">
 
-<div>
-    <p>Total Reports: {{ total_reports }}</p>
-    <p>Average Score: {{ avg_score }}%</p>
-    <p>Best Score: {{ best_score }}%</p>
+    <h1>👤 Profile - {{ current_user.username }}</h1>
+
+    <p>📄 Total Reports: {{ total_reports }}</p>
+
+    <p>📊 Average Score: {{ avg_score }}%</p>
+
+    <p>🏆 Best Score: {{ best_score }}%</p>
+
+    <a href="/dashboard" class="action-btn">
+        Back Home
+    </a>
+
 </div>
-
-<a href="{{ url_for('home') }}">Back Home</a>
 
 {% endblock %}

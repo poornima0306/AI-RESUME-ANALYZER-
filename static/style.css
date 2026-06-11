@@ -199,16 +199,18 @@ form {
 .section-card li{
     margin-bottom:8px;
 }
-@media(max-width:768px){
-
-    .skill-grid{
-        flex-direction:column;
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
     }
 
-    .score-number{
-        font-size:50px;
+    .chat-box {
+        height: 60vh;
     }
 
+    input {
+        width: 100%;
+    }
 }
 .history-table{
     width:100%;
@@ -294,4 +296,34 @@ body.dark-mode select{
 body.dark-mode .history-table th,
 body.dark-mode .history-table td{
     color:white !important;
+}
+.message-text{
+    line-height: 1.5;
+    font-size: 15px;
+    white-space: pre-wrap;
+}
+.bot-message{
+    max-width: 75%;
+    padding: 12px;
+    border-radius: 15px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.user-message{
+    max-width: 75%;
+    padding: 12px;
+    border-radius: 15px;
+}
+.profile-card{
+    width:80%;
+    max-width:700px;
+    margin:auto;
+    margin-top:50px;
+    text-align:center;
+}
+
+.profile-card p{
+    font-size:20px;
+    margin:15px 0;
 }
